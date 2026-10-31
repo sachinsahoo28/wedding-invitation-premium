@@ -1,0 +1,36 @@
+:root {
+  /* Palette */
+  --ivory: #fff9f0;
+  --champagne: #f2e7d5;
+  --champagne-deep: #e8d8bd;
+  --gold: #b08d57;
+  --gold-soft: #d8bd82;
+  --gold-light: #efdcae;
+  --burgundy: #65253b;
+  --burgundy-deep: #4e1a2d;
+  --plum: #452237;
+  --rose: #d9a6a7;
+  --sage: #66785b;
+  --espresso: #34251f;
+
+  --ink: var(--espresso);
+  --ink-soft: color-mix(in srgb, var(--espresso) 72%, var(--ivory));
+  --ink-muted: color-mix(in srgb, var(--espresso) 55%, var(--ivory));
+  --hairline: color-mix(in srgb, var(--gold) 38%, transparent);
+  --gold-foil: linear-gradient(135deg, #f1dca8 0%, #c9a464 42%, #e9d39e 58%, #9c7840 100%);
+
+  /* Type */
+  --serif: 'Cormorant Garamond', 'Cormorant', Georgia, 'Times New Roman', serif;
+  --script: 'Great Vibes', 'Brush Script MT', cursive;
+  --sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --deva: 'Tiro Devanagari Sanskrit', 'Noto Serif Devanagari', 'Mangal', serif;
+
+  /* Spacing & shape */
+  --gutter: clamp(18px, 5vw, 48px);
+  --section: clamp(84px, 14vw, 160px);
+  --radius: 4px;
+  --shadow-soft: 0 30px 60px -36px rgba(52, 37, 31, 0.45);
+  --shadow-deep: 0 40px 80px -30px rgba(69, 34, 55, 0.55);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
