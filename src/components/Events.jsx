@@ -1,15 +1,17 @@
 import { motion } from 'framer-motion';
 import { MapPin, Clock, Shirt, CalendarPlus } from 'lucide-react';
-import { wedding } from '../config/weddingDetails.js';
-import { parseDate, formatDay, formatMonthShort, formatWeekday, formatTime, googleCalendarUrl } from '../lib/dates.js';
+import { useWedding, useText, useCouple } from '../context/WeddingContext.jsx';
+import { parseDate, formatDay, formatMonthShort, formatWeekday, formatTime, googleCalendarUrl } from '../utils/dates.js';
 import { EventMotif, Photo } from './Ornaments.jsx';
 import { SectionHead, stagger, rise } from './Reveal.jsx';
 
 function EventRow({ ev, index }) {
+  const t = useText('events');
+  const { names } = useCouple();
   const start = parseDate(ev.start);
   const end = parseDate(ev.end);
   const cal = googleCalendarUrl({
-    title: `${ev.name} · ${wedding.groom.firstName} & ${wedding.bride.firstName}`,
+    title: `${ev.name} · ${names}`,
     start: ev.start,
     end: ev.end,
     details: ev.description,
@@ -64,7 +66,7 @@ function EventRow({ ev, index }) {
         </dl>
         {cal && (
           <a className="event-cal" href={cal} target="_blank" rel="noopener noreferrer">
-            <CalendarPlus size={14} strokeWidth={1.6} aria-hidden="true" /> Save to calendar
+            <CalendarPlus size={14} strokeWidth={1.6} aria-hidden="true" /> {t.saveToCalendar}
           </a>
         )}
       </motion.div>
@@ -79,14 +81,16 @@ function EventRow({ ev, index }) {
 }
 
 export default function Events() {
+  const { events } = useWedding();
+  const t = useText('events');
   return (
     <section className="events" id="events">
       <SectionHead
-        eyebrow={`${wedding.events.length} celebrations`}
-        script="the festivities"
-        title="Wedding celebrations"
+        eyebrow={t.eyebrow.replace('{count}', events.length)}
+        script={t.script}
+        title={t.title}
       />
-      <p className="events-intro">The best moments in life are meant to be shared — we would love for you to be part of each one.</p>
+      {t.intro && <p className="events-intro">{t.intro}</p>}
       {/* The list drives the line: a scaleY(0) element has no box to observe. */}
       <motion.ol className="timeline" initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }}>
         <motion.span
@@ -97,7 +101,7 @@ export default function Events() {
             show: { scaleY: 1, transition: { duration: 2.4, ease: [0.65, 0, 0.35, 1] } },
           }}
         />
-        {wedding.events.map((ev, i) => <EventRow key={ev.id} ev={ev} index={i} />)}
+        {events.map((ev, i) => <EventRow key={ev.id || i} ev={ev} index={i} />)}
       </motion.ol>
     </section>
   );

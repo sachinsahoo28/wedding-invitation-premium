@@ -16,7 +16,7 @@ body {
   font-size: 16px;
   line-height: 1.65;
   color: var(--ink);
-  background-color: var(--ivory);
+  background-color: var(--c-bg);
   /* Handmade-paper grain */
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .3 0 0 0 0 .2 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -64,13 +64,13 @@ p {
 }
 
 :focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--c-accent);
   outline-offset: 3px;
 }
 
 ::selection {
-  background: var(--rose);
-  color: var(--plum);
+  background: var(--c-blush);
+  color: var(--c-deep);
 }
 
 .sr-only {
@@ -102,13 +102,13 @@ p {
   font-weight: 600;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--c-accent);
 }
 
 .script {
   font-family: var(--script);
   font-weight: 400;
-  color: var(--burgundy);
+  color: var(--c-primary);
 }
 
 .section-head {
@@ -129,14 +129,14 @@ p {
 .section-script {
   font-size: clamp(1.6rem, 4.6vw, 2.2rem);
   line-height: 1;
-  color: var(--gold);
+  color: var(--c-accent);
   margin-top: 4px;
 }
 
 .section-title {
   font-size: clamp(2.1rem, 6.4vw, 3.6rem);
   font-weight: 500;
-  color: var(--plum);
+  color: var(--c-deep);
   letter-spacing: -0.01em;
 }
 
@@ -146,19 +146,19 @@ p {
   height: 24px;
   margin: clamp(36px, 6vw, 56px) auto;
   fill: none;
-  stroke: var(--gold);
+  stroke: var(--c-accent);
   stroke-width: 1;
 }
 
 .gold-divider .fill,
 .corner .fill,
 .monogram .fill {
-  fill: var(--gold);
+  fill: var(--c-accent);
   stroke: none;
 }
 
 .gold-divider.light {
-  stroke: var(--gold-soft);
+  stroke: var(--c-accent-soft);
 }
 
 .corner {
@@ -166,13 +166,13 @@ p {
   width: clamp(38px, 8vw, 64px);
   height: auto;
   fill: none;
-  stroke: var(--gold);
+  stroke: var(--c-accent);
   stroke-width: 1.1;
   pointer-events: none;
 }
 
 .corner .fill-soft {
-  fill: color-mix(in srgb, var(--gold) 22%, transparent);
+  fill: color-mix(in srgb, var(--c-accent) 22%, transparent);
   stroke: none;
 }
 
@@ -183,7 +183,7 @@ p {
 
 .monogram .ring {
   fill: none;
-  stroke: var(--gold);
+  stroke: var(--c-accent);
   stroke-width: 1;
 }
 
@@ -192,30 +192,30 @@ p {
 }
 
 .monogram .fill-soft {
-  fill: color-mix(in srgb, var(--gold) 45%, transparent);
+  fill: color-mix(in srgb, var(--c-accent) 45%, transparent);
 }
 
 .monogram .mono-letter {
   font-family: var(--serif);
   font-size: 34px;
   font-weight: 500;
-  fill: var(--burgundy);
+  fill: var(--c-primary);
   text-anchor: middle;
 }
 
 .monogram .mono-amp {
   font-family: var(--script);
   font-size: 22px;
-  fill: var(--gold);
+  fill: var(--c-accent);
   text-anchor: middle;
 }
 
-.monogram.light .mono-letter { fill: var(--gold-light); }
-.monogram.light .ring { stroke: var(--gold-soft); }
+.monogram.light .mono-letter { fill: var(--c-accent-light); }
+.monogram.light .ring { stroke: var(--c-accent-soft); }
 
 .mandala {
   fill: none;
-  stroke: var(--gold);
+  stroke: var(--c-accent);
   stroke-width: 0.5;
   opacity: 0.16;
 }
@@ -226,7 +226,7 @@ p {
   overflow: hidden;
   width: 100%;
   height: 100%;
-  background: var(--champagne);
+  background: var(--c-surface);
 }
 
 .photo img {
@@ -259,24 +259,24 @@ p {
 }
 
 .photo-placeholder.tone-rose {
-  color: var(--burgundy);
+  color: var(--c-primary);
   background:
-    radial-gradient(120% 80% at 30% 20%, #f6dfdc 0%, transparent 60%),
-    linear-gradient(160deg, #efd2cf, #d9a6a7 70%, #c48d93);
+    radial-gradient(120% 80% at 30% 20%, color-mix(in srgb, var(--c-blush) 35%, var(--c-bg)) 0%, transparent 60%),
+    linear-gradient(160deg, color-mix(in srgb, var(--c-blush) 55%, var(--c-bg)), var(--c-blush) 70%, color-mix(in srgb, var(--c-blush) 82%, var(--c-primary)));
 }
 
 .photo-placeholder.tone-sage {
-  color: #3f4c37;
+  color: color-mix(in srgb, var(--c-leaf) 60%, var(--c-text));
   background:
-    radial-gradient(120% 80% at 70% 20%, #e4e8d6 0%, transparent 60%),
-    linear-gradient(160deg, #d8dec6, #a9b597 70%, #8a9a7b);
+    radial-gradient(120% 80% at 70% 20%, color-mix(in srgb, var(--c-leaf) 18%, var(--c-bg)) 0%, transparent 60%),
+    linear-gradient(160deg, color-mix(in srgb, var(--c-leaf) 28%, var(--c-bg)), color-mix(in srgb, var(--c-leaf) 60%, var(--c-bg)) 70%, color-mix(in srgb, var(--c-leaf) 80%, var(--c-bg)));
 }
 
 .photo-placeholder.tone-champagne {
-  color: var(--plum);
+  color: var(--c-deep);
   background:
-    radial-gradient(120% 80% at 50% 10%, #fff4dc 0%, transparent 60%),
-    linear-gradient(170deg, #f6e9cf, #e2c995 70%, #c9a464);
+    radial-gradient(120% 80% at 50% 10%, color-mix(in srgb, var(--c-accent-light) 40%, var(--c-bg)) 0%, transparent 60%),
+    linear-gradient(170deg, color-mix(in srgb, var(--c-accent-light) 60%, var(--c-bg)), var(--c-accent-soft) 70%, var(--c-accent));
 }
 
 .placeholder-tag {
@@ -288,11 +288,11 @@ p {
   text-align: center;
   padding: 8px 14px;
   margin: 12px;
-  background: rgba(255, 249, 240, 0.82);
+  background: color-mix(in srgb, var(--c-bg) 82%, transparent);
   border: 1px solid rgba(255, 255, 255, 0.7);
   font-size: 0.64rem;
   letter-spacing: 0.08em;
-  color: var(--espresso);
+  color: var(--c-text);
 }
 
 .placeholder-tag strong {
@@ -358,38 +358,38 @@ p {
 }
 
 .btn-primary {
-  background: var(--burgundy);
-  color: var(--ivory);
-  border-color: var(--gold-soft);
-  box-shadow: inset 0 0 0 3px var(--burgundy), inset 0 0 0 4px color-mix(in srgb, var(--gold-soft) 55%, transparent),
-    0 18px 30px -20px rgba(101, 37, 59, 0.9);
+  background: var(--c-primary);
+  color: var(--c-bg);
+  border-color: var(--c-accent-soft);
+  box-shadow: inset 0 0 0 3px var(--c-primary), inset 0 0 0 4px color-mix(in srgb, var(--c-accent-soft) 55%, transparent),
+    0 18px 30px -20px color-mix(in srgb, var(--c-primary) 90%, transparent);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--burgundy-deep);
-  box-shadow: inset 0 0 0 3px var(--burgundy-deep), inset 0 0 0 4px var(--gold-soft),
-    0 22px 36px -20px rgba(101, 37, 59, 1);
+  background: var(--c-primary-deep);
+  box-shadow: inset 0 0 0 3px var(--c-primary-deep), inset 0 0 0 4px var(--c-accent-soft),
+    0 22px 36px -20px var(--c-primary);
 }
 
 .btn-secondary {
-  background: rgba(255, 249, 240, 0.6);
-  color: var(--burgundy);
-  border-color: var(--gold);
+  background: color-mix(in srgb, var(--c-bg) 60%, transparent);
+  color: var(--c-primary);
+  border-color: var(--c-accent);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: var(--ivory);
-  border-color: var(--burgundy);
+  background: var(--c-bg);
+  border-color: var(--c-primary);
 }
 
 .btn-gold {
-  background: var(--gold-foil);
-  color: var(--plum);
+  background: var(--c-foil);
+  color: var(--c-deep);
   border-color: rgba(255, 255, 255, 0.4);
 }
 
 .btn-gold:hover {
-  box-shadow: 0 0 0 4px rgba(216, 189, 130, 0.22);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-accent-soft) 22%, transparent);
 }
 
 .btn-whatsapp {
@@ -406,10 +406,10 @@ p {
   min-height: 40px;
   padding: 8px 12px;
   background: none;
-  color: var(--burgundy);
+  color: var(--c-primary);
   letter-spacing: 0.14em;
   text-decoration: underline;
-  text-decoration-color: var(--gold-soft);
+  text-decoration-color: var(--c-accent-soft);
   text-underline-offset: 6px;
 }
 

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { MapPin, Navigation } from 'lucide-react';
-import { wedding } from '../config/weddingDetails.js';
-import { parseDate, formatLong, formatTime } from '../lib/dates.js';
+import { useWedding, useText } from '../context/WeddingContext.jsx';
+import { parseDate, formatLong, formatTime } from '../utils/dates.js';
 import { Photo } from './Ornaments.jsx';
 
 // Choreography: frame → name → gold rule → address → photo → button.
@@ -13,11 +13,13 @@ const rule = { hidden: { scaleX: 0 }, show: { scaleX: 1, transition: { duration:
 const photo = { hidden: { opacity: 0, scale: 1.06 }, show: { opacity: 1, scale: 1, transition: { duration: 1.1, ease } } };
 
 export default function Venue() {
-  const { venue } = wedding;
-  const date = parseDate(wedding.weddingDate);
-  const query = venue.mapQuery || [venue.name, venue.city].filter(Boolean).join(', ');
+  const config = useWedding();
+  const t = useText('venue');
+  const { venue } = config;
+  const date = parseDate(config.wedding.date);
+  const query = venue.mapQuery || [venue.name, venue.address, venue.city].filter(Boolean).join(', ');
   const mapsLink =
-    venue.mapsUrl || (query ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` : '');
+    venue.mapUrl || (query ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` : '');
 
   return (
     <section className="venue" id="venue">
@@ -34,16 +36,18 @@ export default function Venue() {
         </motion.svg>
 
         <div className="venue-content">
-          <motion.p variants={item} className="eyebrow">Where</motion.p>
+          <motion.p variants={item} className="eyebrow">{t.eyebrow}</motion.p>
           <motion.h2 variants={item} className="venue-name">{venue.name}</motion.h2>
           <motion.span variants={rule} className="venue-rule" aria-hidden="true" />
-          <motion.address variants={item} className="venue-address">
-            <MapPin size={16} strokeWidth={1.5} aria-hidden="true" />
-            <span>
-              {venue.address}
-              {venue.city && <strong>{venue.city}</strong>}
-            </span>
-          </motion.address>
+          {(venue.address || venue.city) && (
+            <motion.address variants={item} className="venue-address">
+              <MapPin size={16} strokeWidth={1.5} aria-hidden="true" />
+              <span>
+                {venue.address}
+                {venue.city && <strong>{venue.city}</strong>}
+              </span>
+            </motion.address>
+          )}
           {date && (
             <motion.p variants={item} className="venue-when">
               {formatLong(date)} · {formatTime(date)}
@@ -54,13 +58,13 @@ export default function Venue() {
           </motion.div>
           {mapsLink && (
             <motion.a variants={item} className="btn btn-primary" href={mapsLink} target="_blank" rel="noopener noreferrer">
-              <Navigation size={16} strokeWidth={1.6} aria-hidden="true" /> View location
+              <Navigation size={16} strokeWidth={1.6} aria-hidden="true" /> {t.button}
             </motion.a>
           )}
         </div>
       </motion.div>
 
-      {venue.showMapEmbed && query && (
+      {config.features.map && query && (
         <motion.div
           className="map-embed"
           initial={{ opacity: 0, y: 24 }}

@@ -1,26 +1,39 @@
+/*
+ * Design tokens. These defaults match the Royal Heritage preset so the first
+ * paint is styled; applyTheme() overwrites them with the client's theme.
+ */
 :root {
-  /* Palette */
-  --ivory: #fff9f0;
-  --champagne: #f2e7d5;
-  --champagne-deep: #e8d8bd;
-  --gold: #b08d57;
-  --gold-soft: #d8bd82;
-  --gold-light: #efdcae;
-  --burgundy: #65253b;
-  --burgundy-deep: #4e1a2d;
-  --plum: #452237;
-  --rose: #d9a6a7;
-  --sage: #66785b;
-  --espresso: #34251f;
+  /* Palette roles (see src/themes/themes.js) */
+  --c-bg: #fff9f0;
+  --c-surface: #f2e7d5;
+  --c-surface-deep: #e8d8bd;
+  --c-text: #34251f;
+  --c-primary: #65253b;
+  --c-primary-deep: #4e1a2d;
+  --c-deep: #452237;
+  --c-accent: #b08d57;
+  --c-accent-soft: #d8bd82;
+  --c-accent-light: #efdcae;
+  --c-accent-dark: #6e5130;
+  --c-blush: #d9a6a7;
+  --c-leaf: #66785b;
+  --c-haldi: #b7861f;
+  --c-night: #2b1422;
+  --c-night-2: #3e1d31;
+  --c-night-deep: #1d0c15;
+  --c-wood: #3c1b2c;
+  --c-paper: #e9d5b0;
+  --c-paper-deep: #d9c39b;
+  --c-glow: #ffe2aa;
 
-  --ink: var(--espresso);
-  --ink-soft: color-mix(in srgb, var(--espresso) 72%, var(--ivory));
-  --ink-muted: color-mix(in srgb, var(--espresso) 55%, var(--ivory));
-  --hairline: color-mix(in srgb, var(--gold) 38%, transparent);
-  --gold-foil: linear-gradient(135deg, #f1dca8 0%, #c9a464 42%, #e9d39e 58%, #9c7840 100%);
+  --ink: var(--c-text);
+  --ink-soft: color-mix(in srgb, var(--c-text) 72%, var(--c-bg));
+  --ink-muted: color-mix(in srgb, var(--c-text) 55%, var(--c-bg));
+  --hairline: color-mix(in srgb, var(--c-accent) 38%, transparent);
+  --c-foil: linear-gradient(135deg, var(--c-accent-light) 0%, var(--c-accent) 42%, var(--c-accent-soft) 58%, var(--c-accent-dark) 100%);
 
   /* Type */
-  --serif: 'Cormorant Garamond', 'Cormorant', Georgia, 'Times New Roman', serif;
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --script: 'Great Vibes', 'Brush Script MT', cursive;
   --sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --deva: 'Tiro Devanagari Sanskrit', 'Noto Serif Devanagari', 'Mangal', serif;
@@ -29,8 +42,8 @@
   --gutter: clamp(18px, 5vw, 48px);
   --section: clamp(84px, 14vw, 160px);
   --radius: 4px;
-  --shadow-soft: 0 30px 60px -36px rgba(52, 37, 31, 0.45);
-  --shadow-deep: 0 40px 80px -30px rgba(69, 34, 55, 0.55);
+  --shadow-soft: 0 30px 60px -36px color-mix(in srgb, var(--c-text) 45%, transparent);
+  --shadow-deep: 0 40px 80px -30px color-mix(in srgb, var(--c-deep) 55%, transparent);
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }

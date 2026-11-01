@@ -1,4 +1,11 @@
-const TZ = 'Asia/Kolkata';
+// Formatting follows the active client's locale (set once by setDateLocale).
+let TZ = 'Asia/Kolkata';
+let LOCALE = 'en-IN';
+
+export function setDateLocale({ timeZone, dateLocale } = {}) {
+  if (timeZone) TZ = timeZone;
+  if (dateLocale) LOCALE = dateLocale;
+}
 
 export function parseDate(value) {
   if (!value) return null;
@@ -6,7 +13,7 @@ export function parseDate(value) {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-const fmt = (opts) => new Intl.DateTimeFormat('en-IN', { timeZone: TZ, ...opts });
+const fmt = (opts) => new Intl.DateTimeFormat(LOCALE, { timeZone: TZ, ...opts });
 
 export const formatDay = (d) => fmt({ day: 'numeric' }).format(d);
 export const formatMonth = (d) => fmt({ month: 'long' }).format(d);
@@ -19,7 +26,9 @@ export const formatLong = (d) => fmt({ weekday: 'long', day: 'numeric', month: '
 /** Parts of a date as seen in the venue's time zone. */
 export function venueParts(d) {
   const parts = Object.fromEntries(
-    fmt({ year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(d).map((p) => [p.type, p.value])
+    new Intl.DateTimeFormat('en-US', { timeZone: TZ, year: 'numeric', month: 'numeric', day: 'numeric' })
+      .formatToParts(d)
+      .map((p) => [p.type, p.value])
   );
   return { year: +parts.year, month: +parts.month - 1, day: +parts.day };
 }

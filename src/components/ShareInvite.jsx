@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Check, Link2, MessageCircle } from 'lucide-react';
-import { wedding } from '../config/weddingDetails.js';
-import { parseDate, formatLong } from '../lib/dates.js';
-import { baseUrl, buildGuestUrl, salutation } from '../lib/personalization.js';
+import { useWedding, useText, useCouple, useClientQuery } from '../context/WeddingContext.jsx';
+import { parseDate, formatLong } from '../utils/dates.js';
+import { baseUrl, buildGuestUrl, salutation } from '../utils/guestPersonalization.js';
 import { SectionHead, Reveal } from './Reveal.jsx';
 
 async function copyText(text) {
@@ -26,25 +26,34 @@ async function copyText(text) {
 }
 
 export default function ShareInvite() {
+  const config = useWedding();
+  const t = useText('share');
+  const { names: couple } = useCouple();
+  const clientQuery = useClientQuery();
   const [form, setForm] = useState({ guest: '', family: '', note: '' });
   const [link, setLink] = useState('');
   const [copied, setCopied] = useState('');
-  const date = parseDate(wedding.weddingDate);
-  const couple = `${wedding.groom.firstName} & ${wedding.bride.firstName}`;
+  const date = parseDate(config.wedding.date);
+  const { city } = config.wedding;
+  const { hashtag } = config.couple;
 
-  const url = useMemo(() => buildGuestUrl(baseUrl(wedding.shareBaseUrl), form), [form]);
+  const url = useMemo(
+    () => buildGuestUrl(baseUrl(config.share.baseUrl, clientQuery), form),
+    [form, config.share.baseUrl, clientQuery]
+  );
   const message = useMemo(() => {
     const name = salutation({ guest: form.guest.trim(), family: form.family.trim() });
     const lines = [
       name ? `Dear ${name},` : 'Dear friends & family,',
       '',
-      `With joy in our hearts, we invite you to celebrate the wedding of ${couple}` +
-        `${date ? ` on ${formatLong(date)}` : ''}${wedding.city ? ` in ${wedding.city}` : ''}.`,
+      `${t.messageIntro} ${couple}` +
+        `${date ? ` on ${formatLong(date)}` : ''}${city ? ` in ${city}` : ''}.`,
     ];
     if (form.note.trim()) lines.push('', form.note.trim());
-    lines.push('', `Your personal invitation: ${link || url}`, '', wedding.hashtag);
+    lines.push('', `${t.linkLabel} ${link || url}`);
+    if (hashtag) lines.push('', hashtag);
     return lines.join('\n');
-  }, [form, link, url, couple, date]);
+  }, [form, link, url, couple, date, city, hashtag, t]);
 
   const update = (key) => (e) => {
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -58,9 +67,9 @@ export default function ShareInvite() {
 
   return (
     <section className="share" id="share">
-      <SectionHead eyebrow="For the families" script="spread the joy" title="Share a personal invitation" />
+      <SectionHead eyebrow={t.eyebrow} script={t.script} title={t.title} />
       <Reveal as="p" className="share-intro">
-        Create an invitation addressed to each guest. They’ll be greeted by name when they open it.
+        {t.intro}
       </Reveal>
 
       <Reveal className="share-card">

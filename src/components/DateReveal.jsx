@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarPlus } from 'lucide-react';
-import { wedding } from '../config/weddingDetails.js';
+import { useWedding, useText, useCouple } from '../context/WeddingContext.jsx';
 import {
   parseDate, formatDay, formatMonth, formatYear, formatWeekday, formatTime, venueParts, googleCalendarUrl,
-} from '../lib/dates.js';
+} from '../utils/dates.js';
 import { useCountdown } from '../hooks/useCountdown.js';
 import { Corner, GoldDivider } from './Ornaments.jsx';
 import { SectionHead, Reveal } from './Reveal.jsx';
 
-/** Gold foil layer the guest can scratch away; tapping the button reveals instantly. */
-function ScratchFoil({ onReveal }) {
+/** Foil layer the guest can scratch away; tapping the button reveals instantly. */
+function ScratchFoil({ label, onReveal }) {
   const canvasRef = useRef(null);
   const drawing = useRef(false);
   const done = useRef(false);
@@ -22,6 +22,9 @@ function ScratchFoil({ onReveal }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    // Foil colours come from the active theme.
+    const css = getComputedStyle(canvas);
+    const token = (name, fallback) => css.getPropertyValue(name).trim() || fallback;
     const paint = () => {
       const { width, height } = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
@@ -29,10 +32,10 @@ function ScratchFoil({ onReveal }) {
       canvas.height = height * dpr;
       ctx.scale(dpr, dpr);
       const g = ctx.createLinearGradient(0, 0, width, height);
-      g.addColorStop(0, '#e9d3a0');
-      g.addColorStop(0.45, '#c9a464');
-      g.addColorStop(0.55, '#e6cf98');
-      g.addColorStop(1, '#a9844b');
+      g.addColorStop(0, token('--c-accent-light', '#efdcae'));
+      g.addColorStop(0.45, token('--c-accent', '#b08d57'));
+      g.addColorStop(0.55, token('--c-accent-soft', '#d8bd82'));
+      g.addColorStop(1, token('--c-accent-dark', '#6e5130'));
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, width, height);
       // subtle foil grain
@@ -40,11 +43,13 @@ function ScratchFoil({ onReveal }) {
         ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.12})`;
         ctx.fillRect(Math.random() * width, Math.random() * height, 1, 1);
       }
-      ctx.fillStyle = 'rgba(69,34,55,.72)';
-      ctx.font = '600 11px "DM Sans", sans-serif';
+      ctx.globalAlpha = 0.75;
+      ctx.fillStyle = token('--c-deep', '#452237');
+      ctx.font = `600 11px ${token('--sans', 'sans-serif')}`;
       ctx.textAlign = 'center';
       ctx.letterSpacing = '3px';
-      ctx.fillText('SCRATCH TO REVEAL', width / 2, height / 2 + 4);
+      ctx.fillText(label.toUpperCase(), width / 2, height / 2 + 4);
+      ctx.globalAlpha = 1;
     };
     paint();
 
@@ -52,16 +57,6 @@ function ScratchFoil({ onReveal }) {
       const r = canvas.getBoundingClientRect();
       const p = e.touches ? e.touches[0] : e;
       return { x: p.clientX - r.left, y: p.clientY - r.top };
-    };
-    const scratch = (e) => {
-      if (!drawing.current || done.current) return;
-      e.preventDefault();
-      const { x, y } = pos(e);
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.beginPath();
-      ctx.arc(x, y, 22, 0, Math.PI * 2);
-      ctx.fill();
-      check();
     };
     let checks = 0;
     const check = () => {
@@ -74,8 +69,23 @@ function ScratchFoil({ onReveal }) {
         revealRef.current();
       }
     };
-    const start = (e) => { drawing.current = true; scratch(e); };
-    const stop = () => { drawing.current = false; };
+    const scratch = (e) => {
+      if (!drawing.current || done.current) return;
+      e.preventDefault();
+      const { x, y } = pos(e);
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(x, y, 22, 0, Math.PI * 2);
+      ctx.fill();
+      check();
+    };
+    const start = (e) => {
+      drawing.current = true;
+      scratch(e);
+    };
+    const stop = () => {
+      drawing.current = false;
+    };
     canvas.addEventListener('pointerdown', start);
     canvas.addEventListener('pointermove', scratch);
     window.addEventListener('pointerup', stop);
@@ -86,7 +96,7 @@ function ScratchFoil({ onReveal }) {
       window.removeEventListener('pointerup', stop);
       canvas.removeEventListener('touchmove', scratch);
     };
-  }, []);
+  }, [label]);
 
   return <canvas ref={canvasRef} className="foil" aria-hidden="true" />;
 }
@@ -115,25 +125,30 @@ function MiniCalendar({ date }) {
 }
 
 export default function DateReveal() {
-  const date = parseDate(wedding.weddingDate);
-  const [revealed, setRevealed] = useState(false);
-  const countdown = useCountdown(date);
+  const config = useWedding();
+  const t = useText('date');
+  const { names } = useCouple();
+  const f = config.features;
+  const date = parseDate(config.wedding.date);
+  const [revealed, setRevealed] = useState(!f.scratchReveal);
+  const countdown = useCountdown(f.countdown ? date : null);
 
   if (!date) {
     return (
       <section className="date-section" id="date">
-        <SectionHead eyebrow="Save the date" title="Date to be announced" />
+        <SectionHead eyebrow={t.eyebrow} title={t.tba} />
       </section>
     );
   }
 
   const cal = googleCalendarUrl({
-    title: `Wedding of ${wedding.groom.firstName} & ${wedding.bride.firstName}`,
-    start: wedding.weddingDate,
-    end: wedding.weddingEndDate,
-    details: wedding.invitationLine,
-    location: [wedding.venue.name, wedding.venue.city].filter(Boolean).join(', '),
+    title: `Wedding of ${names}`,
+    start: config.wedding.date,
+    end: config.wedding.endDate,
+    details: config.family.invitationMessage,
+    location: [config.venue.name, config.venue.city].filter(Boolean).join(', '),
   });
+  const past = date.getTime() <= Date.now();
   const units = countdown && [
     ['Days', countdown.days],
     ['Hours', countdown.hours],
@@ -143,67 +158,75 @@ export default function DateReveal() {
 
   return (
     <section className="date-section" id="date">
-      <SectionHead eyebrow="Save the date" script="mark your calendar" title="The big day" />
+      <SectionHead eyebrow={t.eyebrow} script={t.script} title={t.title} />
 
-      <Reveal className="date-frame">
-        <Corner className="c-tl" />
-        <Corner className="c-tr" />
-        <Corner className="c-bl" />
-        <Corner className="c-br" />
-        <div className="date-face">
-          <span className="df-weekday">{formatWeekday(date)}</span>
-          <span className="df-day">{formatDay(date)}</span>
-          <span className="df-month">{formatMonth(date)}</span>
-          <span className="df-year">{formatYear(date)}</span>
-          <span className="df-time">{formatTime(date)} onwards</span>
-        </div>
-        <AnimatePresence>
-          {!revealed && (
-            <motion.div className="foil-wrap" exit={{ opacity: 0, scale: 1.03 }} transition={{ duration: 0.6 }}>
-              <ScratchFoil onReveal={() => setRevealed(true)} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Reveal>
-
-      {!revealed && (
-        <button type="button" className="btn btn-text" onClick={() => setRevealed(true)}>
-          Or tap here to reveal
-        </button>
-      )}
-
-      <GoldDivider />
-
-      {countdown?.past ? (
-        <Reveal as="p" className="countdown-past">
-          <span className="script">Happily married</span>
-          Thank you for celebrating with us.
-        </Reveal>
-      ) : (
-        <Reveal className="countdown" role="timer" aria-label="Countdown to the wedding">
-          {units.map(([label, value]) => (
-            <div key={label} className="cd-unit">
-              <span className="cd-num" aria-hidden="true">{String(value).padStart(2, '0')}</span>
-              <span className="cd-label">{label}</span>
+      {f.saveTheDate && (
+        <>
+          <Reveal className="date-frame">
+            <Corner className="c-tl" />
+            <Corner className="c-tr" />
+            <Corner className="c-bl" />
+            <Corner className="c-br" />
+            <div className="date-face">
+              <span className="df-weekday">{formatWeekday(date)}</span>
+              <span className="df-day">{formatDay(date)}</span>
+              <span className="df-month">{formatMonth(date)}</span>
+              <span className="df-year">{formatYear(date)}</span>
+              <span className="df-time">{formatTime(date)} {t.onwards}</span>
             </div>
-          ))}
-          <span className="sr-only">
-            {countdown.days} days, {countdown.hours} hours and {countdown.minutes} minutes to go
-          </span>
-        </Reveal>
+            <AnimatePresence>
+              {!revealed && (
+                <motion.div className="foil-wrap" exit={{ opacity: 0, scale: 1.03 }} transition={{ duration: 0.6 }}>
+                  <ScratchFoil label={t.scratch} onReveal={() => setRevealed(true)} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Reveal>
+
+          {!revealed && (
+            <button type="button" className="btn btn-text" onClick={() => setRevealed(true)}>
+              {t.tapReveal}
+            </button>
+          )}
+          <GoldDivider />
+        </>
       )}
 
-      <div className="date-bottom">
-        <Reveal><MiniCalendar date={date} /></Reveal>
-        {!countdown?.past && cal && (
-          <Reveal delay={0.15}>
-            <a className="btn btn-secondary" href={cal} target="_blank" rel="noopener noreferrer">
-              <CalendarPlus size={17} strokeWidth={1.6} aria-hidden="true" />
-              Add to Google Calendar
-            </a>
+      {f.countdown &&
+        (past ? (
+          <Reveal as="p" className="countdown-past">
+            <span className="script">{t.pastScript}</span>
+            {t.pastText}
           </Reveal>
-        )}
-      </div>
+        ) : (
+          units && (
+            <Reveal className="countdown" role="timer" aria-label="Countdown to the wedding">
+              {units.map(([label, value]) => (
+                <div key={label} className="cd-unit">
+                  <span className="cd-num" aria-hidden="true">{String(value).padStart(2, '0')}</span>
+                  <span className="cd-label">{label}</span>
+                </div>
+              ))}
+              <span className="sr-only">
+                {countdown.days} days, {countdown.hours} hours and {countdown.minutes} minutes to go
+              </span>
+            </Reveal>
+          )
+        ))}
+
+      {f.calendar && (
+        <div className="date-bottom">
+          <Reveal><MiniCalendar date={date} /></Reveal>
+          {!past && cal && (
+            <Reveal delay={0.15}>
+              <a className="btn btn-secondary" href={cal} target="_blank" rel="noopener noreferrer">
+                <CalendarPlus size={17} strokeWidth={1.6} aria-hidden="true" />
+                {t.addToCalendar}
+              </a>
+            </Reveal>
+          )}
+        </div>
+      )}
     </section>
   );
 }

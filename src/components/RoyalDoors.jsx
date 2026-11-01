@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { wedding } from '../config/weddingDetails.js';
+import { useWedding, useText } from '../context/WeddingContext.jsx';
 import { Photo } from './Ornaments.jsx';
 import { SectionHead } from './Reveal.jsx';
 import { useReducedMotion } from '../hooks/useReducedMotion.js';
@@ -24,14 +24,14 @@ function DoorArt({ mirrored }) {
     <svg viewBox="0 0 100 300" preserveAspectRatio="none" className="door-art" style={mirrored ? { transform: 'scaleX(-1)' } : undefined}>
       <defs>
         <linearGradient id={`wood-${id}`} x1="0" x2="1">
-          <stop offset="0" stopColor="#3c1b2c" />
-          <stop offset=".5" stopColor="#5a2438" />
-          <stop offset="1" stopColor="#3a1729" />
+          <stop offset="0" style={{ stopColor: 'var(--c-wood)' }} />
+          <stop offset=".5" style={{ stopColor: 'color-mix(in srgb, var(--c-wood) 70%, var(--c-primary))' }} />
+          <stop offset="1" style={{ stopColor: 'color-mix(in srgb, var(--c-wood) 92%, black)' }} />
         </linearGradient>
         <linearGradient id={`gold-${id}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#f1dca8" />
-          <stop offset=".45" stopColor="#c9a464" />
-          <stop offset="1" stopColor="#8e6a35" />
+          <stop offset="0" style={{ stopColor: 'var(--c-accent-light)' }} />
+          <stop offset=".45" style={{ stopColor: 'var(--c-accent)' }} />
+          <stop offset="1" style={{ stopColor: 'var(--c-accent-dark)' }} />
         </linearGradient>
       </defs>
       <rect width="100" height="300" fill={`url(#wood-${id})`} />
@@ -64,6 +64,9 @@ function DoorArt({ mirrored }) {
 }
 
 export default function RoyalDoors() {
+  const config = useWedding();
+  const t = useText('doors');
+  const { groom, bride } = config.couple;
   const [open, setOpen] = useState(false);
   const reduced = useReducedMotion();
   const ease = [0.6, 0.02, 0.2, 1];
@@ -71,7 +74,7 @@ export default function RoyalDoors() {
 
   return (
     <section className="doors-section" id="welcome">
-      <SectionHead eyebrow="The royal welcome" script="step inside" title="A palace awaits you" />
+      <SectionHead eyebrow={t.eyebrow} script={t.script} title={t.title} />
 
       <motion.div
         className="palace"
@@ -88,15 +91,15 @@ export default function RoyalDoors() {
 
         <div className="doorway">
           <div className={`behind ${open ? 'lit' : ''}`}>
-            <Photo src={wedding.doorsPhoto} alt={`${wedding.groom.firstName} and ${wedding.bride.firstName}`} label="Couple portrait" tone="champagne" />
+            <Photo src={config.media.couplePhoto} alt={`${groom.firstName} and ${bride.firstName}`} label="Couple portrait" tone="champagne" />
             <motion.div
               className="behind-caption"
               initial={false}
               animate={open ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
               transition={{ duration: 0.9, delay: open ? (reduced ? 0 : 1.1) : 0 }}
             >
-              <span className="script">Welcome to</span>
-              <strong>our forever</strong>
+              <span className="script">{t.captionScript}</span>
+              <strong>{t.caption}</strong>
             </motion.div>
           </div>
 
@@ -137,7 +140,7 @@ export default function RoyalDoors() {
       </motion.div>
 
       <motion.p className="doors-hint" initial={false} animate={{ opacity: open ? 0 : 1 }}>
-        Tap the doors to enter
+        {t.hint}
       </motion.p>
     </section>
   );

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Music2 } from 'lucide-react';
-import { music } from '../lib/audio.js';
+import { music } from '../utils/audio.js';
 
 export default function MusicPlayer() {
   const [s, setS] = useState({ playing: false, available: false });

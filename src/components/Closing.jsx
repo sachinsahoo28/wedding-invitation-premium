@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone } from 'lucide-react';
-import { wedding } from '../config/weddingDetails.js';
-import { parseDate, formatLong } from '../lib/dates.js';
+import { useWedding, useText } from '../context/WeddingContext.jsx';
+import { parseDate, formatLong } from '../utils/dates.js';
 import { Monogram, GoldDivider } from './Ornaments.jsx';
 import { Reveal } from './Reveal.jsx';
 import { useReducedMotion } from '../hooks/useReducedMotion.js';
@@ -38,42 +38,48 @@ function PetalShower() {
 }
 
 export default function Closing() {
-  const { closing } = wedding;
-  const date = parseDate(wedding.weddingDate);
+  const config = useWedding();
+  const t = useText('closing');
+  const { closing, rsvp, family, features } = config;
+  const { groom, bride, monogram, hashtag } = config.couple;
+  const date = parseDate(config.wedding.date);
   const reduced = useReducedMotion();
   const [burst, setBurst] = useState(0);
-  const tel = closing.rsvpPhone?.replace(/[^\d+]/g, '');
+  const tel = rsvp.phone?.replace(/[^\d+]/g, '');
 
   return (
     <footer className="closing" id="closing">
       <AnimatePresence>{burst > 0 && !reduced && <PetalShower key={burst} />}</AnimatePresence>
-      <Reveal><Monogram text={wedding.monogram} size={96} className="light" /></Reveal>
-      <Reveal as="p" className="script closing-script" delay={0.1}>with love &amp; blessings</Reveal>
-      <Reveal as="h2" className="closing-line" delay={0.2}>{closing.line}</Reveal>
+      <Reveal><Monogram text={monogram} size={96} className="light" /></Reveal>
+      <Reveal as="p" className="script closing-script" delay={0.1}>{t.script}</Reveal>
+      {closing.line && <Reveal as="h2" className="closing-line" delay={0.2}>{closing.line}</Reveal>}
       <GoldDivider className="light" />
-      <Reveal as="p" className="closing-families" delay={0.1}>{closing.families}</Reveal>
+      {family.signature && <Reveal as="p" className="closing-families" delay={0.1}>{family.signature}</Reveal>}
 
-      <Reveal delay={0.2}>
-        <button type="button" className="btn btn-gold" onClick={() => setBurst((b) => b + 1)}>
-          Shower your blessings
-        </button>
-      </Reveal>
+      {features.blessingsShower && (
+        <Reveal delay={0.2}>
+          <button type="button" className="btn btn-gold" onClick={() => setBurst((b) => b + 1)}>
+            {t.shower}
+          </button>
+        </Reveal>
+      )}
 
-      {closing.rsvpName && (
+      {features.rsvp && (rsvp.name || tel) && (
         <Reveal className="rsvp" delay={0.15}>
-          <p className="eyebrow">For RSVP &amp; assistance</p>
-          <p className="rsvp-name">{closing.rsvpName}</p>
+          <p className="eyebrow">{t.rsvp}</p>
+          {rsvp.name && <p className="rsvp-name">{rsvp.name}</p>}
           {tel && (
             <a className="rsvp-phone" href={`tel:${tel}`}>
-              <Phone size={14} strokeWidth={1.6} aria-hidden="true" /> {closing.rsvpPhone}
+              <Phone size={14} strokeWidth={1.6} aria-hidden="true" /> {rsvp.phone}
             </a>
           )}
         </Reveal>
       )}
 
       <p className="colophon">
-        {wedding.groom.firstName} &amp; {wedding.bride.firstName}
-        {date && <> · {formatLong(date)}</>} · {wedding.hashtag}
+        {groom.firstName} &amp; {bride.firstName}
+        {date && <> · {formatLong(date)}</>}
+        {hashtag && <> · {hashtag}</>}
       </p>
     </footer>
   );

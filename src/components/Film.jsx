@@ -1,13 +1,15 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Film as FilmIcon, RotateCcw } from 'lucide-react';
-import { wedding, asset } from '../config/weddingDetails.js';
-import { music } from '../lib/audio.js';
+import { useWedding, useText } from '../context/WeddingContext.jsx';
+import { asset } from '../utils/assets.js';
+import { music } from '../utils/audio.js';
 import { SectionHead } from './Reveal.jsx';
 import { Corner } from './Ornaments.jsx';
 
 export default function Film() {
-  const { film } = wedding;
+  const film = useWedding().media.video;
+  const t = useText('video');
   const videoRef = useRef(null);
   const resumeMusic = useRef(false);
   const [state, setState] = useState('idle'); // idle | loading | playing | paused | error
@@ -36,7 +38,7 @@ export default function Film() {
 
   return (
     <section className="film" id="film">
-      <SectionHead eyebrow="Our wedding film" script="moments of love" title={film.heading} />
+      <SectionHead eyebrow={t.eyebrow} script={t.script} title={t.title} />
       <motion.div
         className="film-frame"
         initial={{ opacity: 0, scale: 0.96, y: 30 }}
@@ -64,7 +66,7 @@ export default function Film() {
                 onPause={onStop('paused')}
                 onEnded={onStop('paused')}
                 onError={() => setState('error')}
-                aria-label={`${film.heading}, wedding film`}
+                aria-label={`${t.title}, wedding film`}
               />
               {state === 'idle' && (
                 <button type="button" className="film-play" onClick={play} aria-label="Play the wedding film">
@@ -88,9 +90,9 @@ export default function Film() {
           ) : (
             <div className="film-placeholder">
               <FilmIcon size={30} strokeWidth={1.2} aria-hidden="true" />
-              <p className="script">Our film is on its way</p>
+              <p className="script">{t.placeholder}</p>
               <p className="film-note">
-                Video placeholder · add the client’s film in <code>weddingDetails.js → film.src</code>
+                Video placeholder · set <code>media.video.src</code> in the client config
               </p>
             </div>
           )}

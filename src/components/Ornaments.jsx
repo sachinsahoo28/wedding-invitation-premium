@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { asset } from '../config/weddingDetails.js';
+import { useState } from 'react';
+import { asset } from '../utils/assets.js';
 
 /** Gold divider that draws itself when scrolled into view. */
 export function GoldDivider({ className = '', delay = 0 }) {
@@ -59,23 +60,23 @@ export function WaxSeal({ initials, className = '' }) {
     <svg className={`wax-seal ${className}`} viewBox="0 0 100 100" aria-hidden="true">
       <defs>
         <radialGradient id="wax" cx="38%" cy="32%" r="75%">
-          <stop offset="0" stopColor="#8c3a52" />
-          <stop offset=".55" stopColor="#65253B" />
-          <stop offset="1" stopColor="#3d1424" />
+          <stop offset="0" style={{ stopColor: 'color-mix(in srgb, var(--c-primary) 80%, white)' }} />
+          <stop offset=".55" style={{ stopColor: 'var(--c-primary)' }} />
+          <stop offset="1" style={{ stopColor: 'color-mix(in srgb, var(--c-primary) 60%, black)' }} />
         </radialGradient>
         <radialGradient id="waxInner" cx="50%" cy="50%" r="50%">
-          <stop offset="0" stopColor="#5a1f33" />
-          <stop offset="1" stopColor="#74304a" />
+          <stop offset="0" style={{ stopColor: 'color-mix(in srgb, var(--c-primary) 88%, black)' }} />
+          <stop offset="1" style={{ stopColor: 'color-mix(in srgb, var(--c-primary) 90%, white)' }} />
         </radialGradient>
       </defs>
       <path
         fill="url(#wax)"
         d="M50 3 C62 2 66 9 76 10 C86 12 90 22 94 30 C99 40 96 47 97 55 C98 66 91 72 86 80 C80 89 70 92 60 96 C50 99 42 96 32 93 C21 89 15 83 9 74 C3 65 3 56 4 47 C5 36 8 27 15 19 C23 10 36 4 50 3Z"
       />
-      <circle cx="50" cy="50" r="31" fill="url(#waxInner)" stroke="#9b4a63" strokeWidth="1.2" />
-      <circle cx="50" cy="50" r="27" fill="none" stroke="#3d1424" strokeWidth=".8" opacity=".6" />
+      <circle cx="50" cy="50" r="31" fill="url(#waxInner)" className="seal-rim" strokeWidth="1.2" />
+      <circle cx="50" cy="50" r="27" fill="none" className="seal-groove" strokeWidth=".8" opacity=".6" />
       <text x="50" y="57" textAnchor="middle" className="seal-text">{initials}</text>
-      <path d="M26 30 q6 -8 14 -10" stroke="#b9677f" strokeWidth="2" fill="none" strokeLinecap="round" opacity=".6" />
+      <path d="M26 30 q6 -8 14 -10" className="seal-shine" strokeWidth="2" fill="none" strokeLinecap="round" opacity=".6" />
     </svg>
   );
 }
@@ -162,10 +163,19 @@ export function EventMotif({ type }) {
  * client image is configured. Never substitutes stock imagery.
  */
 export function Photo({ src, alt, label = 'Photograph', className = '', tone = 'rose', style }) {
-  if (src) {
+  // A missing or broken file falls back to the placeholder rather than a broken image.
+  const [failed, setFailed] = useState(false);
+  if (src && !failed) {
     return (
       <div className={`photo ${className}`} style={style}>
-        <img src={asset(src)} alt={alt} loading="lazy" decoding="async" onLoad={(e) => e.currentTarget.classList.add('loaded')} />
+        <img
+          src={asset(src)}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          onLoad={(e) => e.currentTarget.classList.add('loaded')}
+          onError={() => setFailed(true)}
+        />
       </div>
     );
   }

@@ -1,12 +1,13 @@
 {
-  "name": "royal-wedding-invitation",
+  "name": "wedding-invitation-platform",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "build:gh": "vite build --base=/wedding_invetaionsecondpart/",
+    "build": "vite build && node scripts/postbuild.mjs",
+    "build:client": "node scripts/build-client.mjs",
+    "new-client": "node scripts/new-client.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

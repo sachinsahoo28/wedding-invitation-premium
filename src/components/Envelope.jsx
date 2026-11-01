@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { wedding } from '../config/weddingDetails.js';
-import { parseDate, formatDay, formatMonth, formatYear } from '../lib/dates.js';
-import { salutation } from '../lib/personalization.js';
+import { useWedding, useText } from '../context/WeddingContext.jsx';
+import { parseDate, formatDay, formatMonth, formatYear } from '../utils/dates.js';
+import { salutation } from '../utils/guestPersonalization.js';
 import { Monogram, WaxSeal, Corner } from './Ornaments.jsx';
 import { useReducedMotion } from '../hooks/useReducedMotion.js';
 
@@ -11,23 +11,26 @@ const T = { sealFade: 320, flap: 620, card: 1250, particles: 1500, done: 2650 };
 const T_REDUCED = { sealFade: 0, flap: 0, card: 0, particles: 9e9, done: 600 };
 
 export default function Envelope({ guest, onBegin, onOpen }) {
+  const config = useWedding();
+  const t = useText('gate');
+  const { groom, bride, monogram, hashtag } = config.couple;
   const reduced = useReducedMotion();
   const [stage, setStage] = useState('idle'); // idle → seal → flap → card → done
   const timers = useRef([]);
-  const date = parseDate(wedding.weddingDate);
-  const initials = wedding.monogram.replace(/\s/g, '').replace('&', '·');
+  const date = parseDate(config.wedding.date);
+  const initials = monogram.replace(/\s/g, '').replace('&', '·');
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   const open = () => {
     if (stage !== 'idle') return; // ignore double taps
     onBegin?.(); // starts music inside the same user gesture
-    const t = reduced ? T_REDUCED : T;
+    const time = reduced ? T_REDUCED : T;
     setStage('seal');
     const at = (ms, fn) => timers.current.push(setTimeout(fn, ms));
-    at(t.sealFade, () => setStage('flap'));
-    at(t.card, () => setStage('card'));
-    at(t.done, () => {
+    at(time.sealFade, () => setStage('flap'));
+    at(time.card, () => setStage('card'));
+    at(time.done, () => {
       setStage('done');
       onOpen();
     });
@@ -44,16 +47,16 @@ export default function Envelope({ guest, onBegin, onOpen }) {
     >
       <div className="gate-light" aria-hidden="true" />
       <div className="gate-inner">
-        {wedding.showGaneshBlessing && (
+        {config.features.blessing && (
           <motion.div
             className="blessing"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.15 }}
           >
-            <span className="blessing-title" lang="sa">॥ श्री गणेशाय नमः ॥</span>
+            <span className="blessing-title" lang="sa">{config.blessing.title}</span>
             <p className="shloka" lang="sa">
-              {wedding.blessing.sanskrit.split('\n').map((l) => (
+              {(config.blessing.sanskrit || '').split('\n').map((l) => (
                 <span key={l}>{l}</span>
               ))}
             </p>
@@ -66,18 +69,18 @@ export default function Envelope({ guest, onBegin, onOpen }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.35 }}
         >
-          <Monogram text={wedding.monogram} size={64} />
+          <Monogram text={monogram} size={64} />
           {guest ? (
             <p className="gate-guest">
-              <span className="script">Dear</span> {salutation(guest)}
+              <span className="script">{t.dear}</span> {salutation(guest)}
             </p>
           ) : (
-            <p className="eyebrow">You are cordially invited</p>
+            <p className="eyebrow">{t.eyebrow}</p>
           )}
           <h1 className="gate-names">
-            {wedding.groom.firstName} <span className="script amp">&amp;</span> {wedding.bride.firstName}
+            {groom.firstName} <span className="script amp">&amp;</span> {bride.firstName}
           </h1>
-          <p className="hashtag">{wedding.hashtag}</p>
+          {hashtag && <p className="hashtag">{hashtag}</p>}
         </motion.div>
 
         <motion.button
@@ -101,11 +104,11 @@ export default function Envelope({ guest, onBegin, onOpen }) {
           >
             <Corner className="c-tl" />
             <Corner className="c-tr" />
-            <span className="env-card-eyebrow">The wedding of</span>
+            <span className="env-card-eyebrow">{t.cardEyebrow}</span>
             <span className="env-card-names">
-              {wedding.groom.firstName}
+              {groom.firstName}
               <em>&amp;</em>
-              {wedding.bride.firstName}
+              {bride.firstName}
             </span>
             {date && (
               <span className="env-card-date">
@@ -158,7 +161,7 @@ export default function Envelope({ guest, onBegin, onOpen }) {
           animate={{ opacity: stage === 'idle' ? 1 : 0 }}
           transition={{ duration: 0.6, delay: stage === 'idle' ? 1.3 : 0 }}
         >
-          Tap the seal to open your invitation
+          {t.hint}
         </motion.p>
       </div>
     </motion.div>
